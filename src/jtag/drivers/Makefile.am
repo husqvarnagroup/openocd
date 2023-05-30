@@ -53,6 +53,11 @@ if USE_LIBJAYLINK
 %C%_libocdjtagdrivers_la_LIBADD += $(LIBJAYLINK_LIBS)
 endif
 
+if USE_LIBGPIOD
+%C%_libocdjtagdrivers_la_CPPFLAGS += $(LIBGPIOD_CFLAGS)
+%C%_libocdjtagdrivers_la_LIBADD += $(LIBGPIOD_LIBS)
+endif
+
 if JLINK
 DRIVERFILES += %D%/jlink.c
 if INTERNAL_LIBJAYLINK
@@ -160,6 +165,9 @@ DRIVERFILES += %D%/opendous.c
 endif
 if SYSFSGPIO
 DRIVERFILES += %D%/sysfsgpio.c
+endif
+if GPIOD
+DRIVERFILES += %D%/gpiod.c
 endif
 if XLNX_PCIE_XVC
 DRIVERFILES += %D%/xlnx-pcie-xvc.c

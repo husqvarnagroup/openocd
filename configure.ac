@@ -345,6 +345,10 @@ AC_ARG_ENABLE([xlnx_pcie_xvc],
   AS_HELP_STRING([--enable-xlnx-pcie-xvc], [Enable building support for Xilinx XVC/PCIe.]),
   [build_xlnx_pcie_xvc=$enableval], [build_xlnx_pcie_xvc=no])
 
+AC_ARG_ENABLE([gpiod],
+  AS_HELP_STRING([--enable-gpiod], [Enable building support for programming driven via libgpiod.]),
+  [build_gpiod=$enableval], [build_gpiod=no])
+
 AS_CASE([$host_os],
   [linux*], [],
   [
@@ -365,6 +369,10 @@ AS_CASE([$host_os],
       AS_IF([test "x$build_rshim" = "xyes"], [
         AC_MSG_ERROR([build_rshim is only available on linux or freebsd])
       ])
+    ])
+
+    AS_IF([test "x$build_gpiod" = "xyes"], [
+      AC_MSG_ERROR([gpiod is only available on linux])
     ])
 ])
 
@@ -641,6 +649,13 @@ AS_IF([test "x$build_xlnx_pcie_xvc" = "xyes"], [
   AC_DEFINE([BUILD_XLNX_PCIE_XVC], [0], [0 if you don't want Xilinx XVC/PCIe driver.])
 ])
 
+AS_IF([test "x$build_gpiod" = "xyes"], [
+  build_bitbang=yes
+  AC_DEFINE([BUILD_GPIOD], [1], [1 if you want the gpiod driver.])
+  PKG_CHECK_MODULES([LIBGPIOD], [libgpiod], [use_libgpiod=yes], [use_libgpiod=no])
+], [
+  AC_DEFINE([BUILD_GPIOD], [0], [0 if you don't want gpiod driver.])
+])
 PKG_CHECK_MODULES([LIBUSB1], [libusb-1.0], [
 	use_libusb1=yes
 	AC_DEFINE([HAVE_LIBUSB1], [1], [Define if you have libusb-1.x])
@@ -783,6 +798,7 @@ AM_CONDITIONAL([REMOTE_BITBANG], [test "x$build_remote_bitbang" = "xyes"])
 AM_CONDITIONAL([BUSPIRATE], [test "x$build_buspirate" = "xyes"])
 AM_CONDITIONAL([SYSFSGPIO], [test "x$build_sysfsgpio" = "xyes"])
 AM_CONDITIONAL([XLNX_PCIE_XVC], [test "x$build_xlnx_pcie_xvc" = "xyes"])
+AM_CONDITIONAL([GPIOD], [test "x$build_gpiod" = "xyes"])
 AM_CONDITIONAL([USE_LIBUSB0], [test "x$use_libusb0" = "xyes"])
 AM_CONDITIONAL([USE_LIBUSB1], [test "x$use_libusb1" = "xyes"])
 AM_CONDITIONAL([IS_CYGWIN], [test "x$is_cygwin" = "xyes"])
@@ -796,6 +812,7 @@ AM_CONDITIONAL([USE_HIDAPI], [test "x$use_hidapi" = "xyes"])
 AM_CONDITIONAL([USE_LIBJAYLINK], [test "x$use_libjaylink" = "xyes"])
 AM_CONDITIONAL([RSHIM], [test "x$build_rshim" = "xyes"])
 AM_CONDITIONAL([HAVE_CAPSTONE], [test "x$enable_capstone" != "xno"])
+AM_CONDITIONAL([USE_LIBGPIOD], [test "x$use_libgpiod" = "xyes"])
 
 AM_CONDITIONAL([MINIDRIVER], [test "x$build_minidriver" = "xyes"])
 AM_CONDITIONAL([MINIDRIVER_DUMMY], [test "x$build_minidriver_dummy" = "xyes"])
